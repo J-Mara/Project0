@@ -1,17 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-struct song_node {
-  char name[100];
-  char artist[100];
-  struct song_node *next;
-};
+#include "listfile.h"
 
 void printList(struct song_node* n){
   while (n != NULL){
-    printf(" %s ", n->name);
     printf(" %s ", n->artist);
+    printf(" %s \n", n->name);
     n = n->next;
   }
 }
@@ -53,10 +48,10 @@ struct song_node* getPoint(char n[], char a[], struct song_node* s){
   return NULL;
 }
 
-char* getArtSong(char a[], struct song_node* s){
+struct song_node* getArtSong(char a[], struct song_node* s){
   while (s != NULL){
     if(strcmp(s->artist, a) == 0){
-      return s->name;
+      return s;
     }
     s = s->next;
   }
@@ -76,13 +71,22 @@ void remSong(char a[], char n[], struct song_node* s){
 }
 
 void freeList(struct song_node* n){
-  struct song_node* tmp;
-  while(n != NULL){
-    tmp = n;
-    n = n->next;
-    free(tmp);
+  //struct song_node* tmp;
+  if(n->next != NULL){
+    freeList(n->next);
+    // free(n->name);
+    //free(n->artist);
+    //free(n->next);
+    
+    //tmp = n;
+    //n = n->next;
+    //free(tmp);
   }
+  printf("freeing node %s %s\n", n->artist, n->name);
+  free(n);
 }
+
+
 
 int main(){
   struct song_node* head = NULL;
@@ -98,7 +102,7 @@ int main(){
   strcpy(head->name, "test1");
   strcpy(second->name, "test3");
   strcpy(third->name, "test2");
-  strcpy(first->name, "test add at the begining");
+  strcpy(first->name, "test4");
 
   strcpy(head->artist, "a");
   strcpy(second->artist, "b");
@@ -113,14 +117,50 @@ int main(){
   addAlpha(second, head);
   addAlpha(third, head);
   
-  printList(head);
-  printf("pointer to head: %p\n", getPoint("test1", "a", head));
-  printf("head name: %s\n", getPoint("test1", "a", head)->name);
-  printf("head artist: %s\n", getPoint("test1", "a", head)->artist);
+  //printList(head);
+  //printf("pointer to head: %p\n", getPoint("test1", "a", head));
+  //printf("head name: %s\n", getPoint("test1", "a", head)->name);
+  //printf("head artist: %s\n", getPoint("test1", "a", head)->artist);
 
+  //remSong("b", "test2", head);
+  //printList(head);
+  
+  //freeList(head);
+  //printList(head);
+
+
+  printf("TESTING LIST PART\n");
+  printf("==============\n");
+  printf("Testing print_list:\n");
+  printList(head);
+  printf("==============\n");
+  printf("Testing find_node: \n");
+  printf("looking for [b:test3]\n");
+  printf("found: %s %s\n", getPoint("test3", "b", head)->artist, getPoint("test3", "b", head)->name);
+  printf("==============\n");
+  printf("Testing find_artist:\n");
+  printf("looking for artist b, first song: [b:test2]\n");
+  printf("found: %s %s\n", getArtSong("b", head)->artist, getArtSong("b", head)->name);
+  printf("==============\n");
+  printf("Testing remove:\n");
+  printf("removing [b, test3]\n");
+  remSong("b", "test3", head);
+  printList(head);
+  printf("removing [b, test2]\n");
   remSong("b", "test2", head);
   printList(head);
-  
+  printf("==============\n");
+  printf("Testing add_alpha: \n");
+  struct song_node* other = NULL;
+  other = (struct song_node*)malloc(sizeof(struct song_node));
+  strcpy(other->name, "test5");
+  strcpy(other->artist, "c");
+  addAlpha(other, head);
+  printf("Adding [c:test5]\n");
+  printList(head);
+  printf("==============\n");
+  printf("Testing freeList:\n");
   freeList(head);
-  //printList(head);
+  printf("memory freed\n");
 }
+
